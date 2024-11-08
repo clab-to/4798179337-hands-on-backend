@@ -15,6 +15,40 @@
                 "config.settings.development"
             ],
             "console": "integratedTerminal"
-        }
+        },
+        {
+            "name": "モデルの変更検出/マイグレーションコード生成",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${cwd}/manage.py",
+            "args": [
+                "makemigrations",
+                "--settings",
+                "config.settings.development"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "マイグレーションをDBに適用",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${cwd}/manage.py",
+            "args": [
+                "migrate",
+                "--settings",
+                "config.settings.development"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "マイグレーションの(非)適用リスト表示",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${cwd}/manage.py",
+            "args": [
+                "showmigrations"
+            ],
+            "console": "integratedTerminal"
+        },
     ]
 }
