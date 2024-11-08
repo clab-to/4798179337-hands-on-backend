@@ -1,0 +1,48 @@
+[tool.ruff]
+exclude = []
+
+line-length = 88
+indent-width = 4
+
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    # 基本対応したい
+    "D100",   # モジュールの最上位docstringがない
+    "COM812", # 末尾のコンマ。フォーマッタで対応できるなら有効にしたい
+
+    # 対応しない
+    "D400",
+    # 最初の行がピリオドで終わらないdocstring
+    # 日本語は句読点で終わるので
+    "D415",
+    # 最初の行がピリオド、疑問符、感嘆符などの句読点で終わっていないdocstring
+    # 日本語は句読点で終わるので
+    "E501",
+    # 行が長い
+    # 自動フォーマットで対応できるところまででおいておく
+    # 無理して短くしない
+
+    # 非推奨
+    "E999",
+    "UP027",
+    "ANN101",
+    "ANN102",
+    "PT004",
+    "PT005",
+
+    # warning 干渉で無視される側
+    "D203",
+    "D213",
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["D104"]
+"api/hello/*" = ["ALL"]
+"api/hello_db/*" = ["ALL"]
