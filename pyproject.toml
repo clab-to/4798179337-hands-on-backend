@@ -36,6 +36,7 @@ ignore = [
     # warning 干渉で無視される側
     "D203",
     "D213",
+    "ISC001",
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
