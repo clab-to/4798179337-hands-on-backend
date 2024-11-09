@@ -2,5 +2,3 @@
 ```
 django-admin startapp [application-name]
 ```
-
-test
