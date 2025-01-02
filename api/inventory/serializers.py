@@ -5,6 +5,20 @@ from api.inventory.models import Purchase
 from api.inventory.models import Sales
 
 
+class InventorySerializer(serializers.Serializer):
+    """在庫のシリアライザ
+
+    仕入れ、売上情報の一覧。
+    Modelに依存しないため、個別にフィールドを定義している
+    """
+
+    id = serializers.IntegerField()
+    unit = serializers.IntegerField()
+    quantity = serializers.IntegerField()
+    type = serializers.IntegerField()
+    date = serializers.DateTimeField()
+
+
 class ProductSerializer(serializers.ModelSerializer):
     """商品のシリアライザ"""
 
