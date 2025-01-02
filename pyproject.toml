@@ -37,6 +37,7 @@ unfixable = []
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["D104"]
+"api/*/migrations/" = ["D101", "RUF012"]
 "api/hello/*" = ["ALL"]
 "api/hello_db/*" = ["ALL"]
 
