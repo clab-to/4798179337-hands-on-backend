@@ -11,6 +11,7 @@
   },
   "editor.tabSize": 2,
   "explorer.compactFolders": false,
+  "git.enableCommitSigning": true,
   "python.analysis.inlayHints.functionReturnTypes": true,
   "python.analysis.inlayHints.variableTypes": true
 }
