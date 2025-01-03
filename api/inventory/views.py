@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from django.db.models import F
 from django.db.models import Sum
 from django.db.models import Value
@@ -6,8 +8,10 @@ from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from api.inventory.exception import BusinessException
 from api.inventory.models import Product
@@ -57,12 +61,20 @@ class InventoryView(views.APIView):
 class ProductView(views.APIView):
     """商品操作に関する関数"""
 
+    # 認証クラスの設定
+    authentication_classes: ClassVar[type[JWTAuthentication]] = [JWTAuthentication]
+    # アクセス許可の設定。認証済みのリクエストのみ許可
+    permission_classes: ClassVar[type[IsAuthenticated]] = [IsAuthenticated]
+
     def __init__(self) -> None:
         super().__init__()
         self._serializer = ProductSerializer
 
     def get_object(self, primary_key: int) -> Product:
-        """idとprimary_keyが一致する1つの商品を取得する"""
+        """idとprimary_keyが一致する1つの商品を取得する
+
+        商品操作に関する関数で、共通で使用する商品取得関数
+        """
         try:
             return Product.objects.get(pk=primary_key)
         except Product.DoesNotExist as e:
