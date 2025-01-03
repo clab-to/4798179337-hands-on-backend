@@ -1,3 +1,4 @@
+from typing import Any
 from typing import ClassVar
 
 from django.conf import settings
@@ -14,6 +15,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 
 from api.inventory.exception import BusinessException
 from api.inventory.models import Product
@@ -65,6 +67,60 @@ class LoginView(views.APIView):
         return response
 
 
+class RetryView(views.APIView):
+    """リフレッシュトークンを使ってアクセストークンを再取得する"""
+
+    authentication_classes: ClassVar[type[JWTAuthentication]] = [JWTAuthentication]
+    permission_classes: ClassVar[type[IsAuthenticated]] = []
+
+    def post(self, request: Request) -> Response:
+        """リフレッシュトークンを使ってアクセストークンを再取得する
+
+        Args:
+            request (Request): リクエスト情報
+
+        Returns:
+            Response: レスポンス情報
+        """
+        request.data["refresh"] = request.META.get("HTTP_REFRESH_TOKEN")
+        serializer = TokenRefreshSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        access = serializer.validated_data.get("access", None)
+        refresh = serializer.validated_data.get("refresh", None)
+
+        if not access:
+            errmsg = "ユーザの認証に失敗しました。"
+            return Response({"errMsg": errmsg}, status=status.HTTP_401_UNAUTHORIZED)
+
+        response = Response(status=status.HTTP_200_OK)
+        max_age: int = settings.COOKIE_TIME
+        response.set_cookie("access", access, httponly=True, max_age=max_age)
+        response.set_cookie("refresh", refresh, httponly=True, max_age=max_age)
+        return response
+
+
+class LogoutView(views.APIView):
+    """ログアウト処理。"""
+
+    authentication_classes: ClassVar[type[JWTAuthentication]] = []
+    permission_classes: ClassVar[type[IsAuthenticated]] = []
+
+    def post(self, request: Request, *_: list[Any]) -> Response:
+        """ログアウト処理。
+
+        アクセストークンとリフレッシュトークンを削除する。
+        Args:
+            request (Request): HTTPリクエストオブジェクト。
+            *_ (list[Any]): その他の引数。
+        Returns:
+            Response: HTTPレスポンスオブジェクト。
+        """
+        response = Response(status=status.HTTP_200_OK)
+        response.delete_cookie("access")
+        response.delete_cookie("refresh")
+        return response
+
+
 class InventoryView(views.APIView):
     """在庫操作に関する関数"""
 
@@ -109,6 +165,7 @@ class ProductView(views.APIView):
     permission_classes: ClassVar[type[IsAuthenticated]] = [IsAuthenticated]
 
     def __init__(self) -> None:
+        """初期化処理。シリアライザの設定"""
         super().__init__()
         self._serializer = ProductSerializer
 
