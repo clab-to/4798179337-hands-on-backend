@@ -33,15 +33,19 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    # first party
+    "api.hello_db",
+    INVENTORY_NAME,
+    # third party
+    "rest_framework",
+    "rest_framework_simplejwt",
+    # django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
-    "api.hello_db",
-    INVENTORY_NAME,
 ]
 
 MIDDLEWARE = [
@@ -146,14 +150,18 @@ LOGGING = {
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
+        "api.inventory.authentication.AccessJWTAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
+
+# クッキーの有効期限: 12時間
+COOKIE_TIME = 60 * 60 * 12
 
 # JWT設定
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(minutes=1),
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=30),
     "ROTATE_REFRESH_TOKENS": True,
     "UPDATE_LAST_LOGIN": True,

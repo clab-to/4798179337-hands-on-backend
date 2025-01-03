@@ -10,7 +10,8 @@
       "request": "launch",
       "program": "${cwd}/manage.py",
       "args": ["runserver", "--settings", "config.settings.development"],
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "justMyCode": false
     },
     {
       "name": "モデルの変更検出/マイグレーションコード生成",

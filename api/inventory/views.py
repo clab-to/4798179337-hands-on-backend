@@ -1,5 +1,6 @@
 from typing import ClassVar
 
+from django.conf import settings
 from django.db.models import F
 from django.db.models import Sum
 from django.db.models import Value
@@ -12,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from api.inventory.exception import BusinessException
 from api.inventory.models import Product
@@ -21,6 +23,46 @@ from api.inventory.serializers import InventorySerializer
 from api.inventory.serializers import ProductSerializer
 from api.inventory.serializers import PurchaseSerializer
 from api.inventory.serializers import SalesSerializer
+
+
+class LoginView(views.APIView):
+    """ユーザのログイン処理
+
+    Args:
+        APIView (class): rest_frameworkのAPIViewクラスを受け取る
+    """
+
+    # 認証クラスの指定。
+    # リクエストヘッダーにtokenを差し込むといったカスタム動作をしないので、素の認証クラスを使用する。
+    authentication_classes: ClassVar[type[JWTAuthentication]] = [JWTAuthentication]
+    # アクセス許可の指定。
+    # 全てのリクエストに対してアクセス許可を行う。
+    permission_classes: ClassVar[type[IsAuthenticated]] = []
+
+    def post(self, request: Request, format=None) -> Response:
+        """ユーザのログイン処理
+
+        Args:
+            request (Request): リクエスト情報
+            format ([type], optional): フォーマット情報. Defaults to None.
+
+        Returns:
+            Response: レスポンス情報
+        """
+        serializer = TokenObtainPairSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        access = serializer.validated_data.get("access", None)
+        refresh = serializer.validated_data.get("refresh", None)
+
+        if not access:
+            errmsg = "ユーザの認証に失敗しました。"
+            return Response({"errMsg": errmsg}, status=status.HTTP_401_UNAUTHORIZED)
+
+        response = Response(status=status.HTTP_200_OK)
+        max_age: int = settings.COOKIE_TIME
+        response.set_cookie("access", access, httponly=True, max_age=max_age)
+        response.set_cookie("refresh", refresh, httponly=True, max_age=max_age)
+        return response
 
 
 class InventoryView(views.APIView):
